@@ -16,7 +16,6 @@ func init() {
 func putRecordHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	r.ParseForm()
-	//fmt.Println(r.Form)
 	data := make(map[string]string)
 	for k, v := range r.Form {
 		if len(v) != 0 {
@@ -33,7 +32,7 @@ func putRecordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	url, _ := router.Get("getRecordHandler").URL("database", vars["database"], "layout", vars["layout"], "recid", req["recid"])
 	req["recid_url"] = r.Host + url.String()
-	//fmt.Println(req)
+
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "\t")

@@ -3,13 +3,10 @@ package filemaker
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"net/url"
 )
 
 func (s *Server) EditRow(database, layout string, recid string, data map[string]string) (Record, error) {
-	fmt.Println(data)
-
 	query := s.host + "/fmi/xml/fmresultset.xml?-db=" + url.QueryEscape(database) + "&-lay=" + url.QueryEscape(layout) + "&-recid=" + recid + "&-edit"
 	for k, v := range data {
 		query += "&" + url.QueryEscape(k) + "=" + url.QueryEscape(v)
