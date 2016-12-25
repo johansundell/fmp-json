@@ -1,4 +1,3 @@
-// fmp project main.go
 package main
 
 import (
@@ -26,6 +25,7 @@ var fmServer = "http://fmh-iwp12.no-ip.info"
 
 func main() {
 	flag.StringVar(&hostname, "hostname", ":8080", "The hostname that will server the files")
+	flag.StringVar(&fmServer, "server", "http://fmh-iwp12.no-ip.info", "The filemaker server to use as host")
 	flag.Parse()
 
 	router = NewRouter()
