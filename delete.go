@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -23,8 +22,5 @@ func deleteRecordHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(404), 404)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "\t")
-	enc.Encode(true)
+	returnJson(w, true)
 }

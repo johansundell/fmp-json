@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -25,9 +24,6 @@ func getRecordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	url, _ := router.Get("getRecordHandler").URL("database", vars["database"], "layout", vars["layout"], "recid", req["recid"])
 	req["recid_url"] = r.Host + url.String()
-	//fmt.Println(req)
-	w.Header().Set("Content-Type", "application/json")
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "\t")
-	enc.Encode(req)
+
+	returnJson(w, req)
 }

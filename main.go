@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -37,6 +38,13 @@ func main() {
 		ReadTimeout:  90 * time.Second,
 	}
 	log.Fatal(srv.ListenAndServe())
+}
+
+func returnJson(w http.ResponseWriter, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "\t")
+	enc.Encode(data)
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {

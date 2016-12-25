@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"net/url"
@@ -46,9 +45,7 @@ func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	//fmt.Println(params)
-	//fmt.Println(vars)
-	//fmt.Println(username, password)
+
 	fm := filemaker.NewServer(fmServer, username, password)
 	req, err := fm.Get(vars["database"], vars["layout"], params)
 	if err != nil {
@@ -60,9 +57,5 @@ func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		url, _ := router.Get("getRecordHandler").URL("database", vars["database"], "layout", vars["layout"], "recid", v["recid"])
 		v["recid_url"] = r.Host + url.String()
 	}
-	//fmt.Println(req)
-	w.Header().Set("Content-Type", "application/json")
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "\t")
-	enc.Encode(req)
+	returnJson(w, req)
 }
