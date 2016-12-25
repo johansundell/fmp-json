@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/gorilla/mux"
 	"github.com/johansundell/fmp-json/filemaker"
@@ -21,7 +20,7 @@ func putRecordHandler(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]string)
 	for k, v := range r.Form {
 		if len(v) != 0 {
-			data[url.QueryEscape(k)] = url.QueryEscape(v[0])
+			data[k] = v[0]
 		}
 	}
 	username, password, _ := r.BasicAuth()

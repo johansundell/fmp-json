@@ -2,47 +2,29 @@ package filemaker
 
 import (
 	"encoding/xml"
-	"fmt"
-	"net/http"
+	"errors"
+	"net/url"
 )
 
 func (s *Server) NewRow(database, layout string, data map[string]string) (Record, error) {
-	fmt.Println(data)
-	//return nil, nil
-	client := &http.Client{}
-	//recidPart := "&-recid=" + recid
-	searchType := "&-new"
-	url := s.host + "/fmi/xml/fmresultset.xml?-db=" + database + "&-lay=" + layout + searchType
+	query := s.host + "/fmi/xml/fmresultset.xml?-db=" + url.QueryEscape(database) + "&-lay=" + url.QueryEscape(layout) + "&-new"
 	for k, v := range data {
-		url += "&" + k + "=" + v
+		query += "&" + url.QueryEscape(k) + "=" + url.QueryEscape(v)
 	}
-	fmt.Println(url)
-	req, err := http.NewRequest("GET", url, nil)
+
+	buffer, err := s.getResult(query)
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(s.username, s.password)
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	defer buffer.Close()
 
 	fm := fmresultset{}
-	if err := xml.NewDecoder(resp.Body).Decode(&fm); err != nil {
+	if err := xml.NewDecoder(buffer).Decode(&fm); err != nil {
 		return nil, err
 	}
-
-	record := make(map[string]string)
-	for _, v := range fm.Resultset.Record {
-		row := make(map[string]string)
-		row["recid"] = v.RecordId
-		for _, r := range v.Field {
-			row[r.Name] = r.Value
-		}
-		record = row
+	if fm.Error.Code != "0" {
+		return nil, errors.New("Filemaker error " + fm.Error.Code)
 	}
-	//fmt.Println(record)
-	return record, nil
-	//return s.GetRow(database, layout, recid)
+
+	return getRecordsFromXml(fm)[0], nil
 }

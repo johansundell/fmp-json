@@ -1,5 +1,11 @@
 package filemaker
 
+import (
+	"io"
+	"net/http"
+	"net/url"
+)
+
 type fmresultset struct {
 	Version         string            `xml:"version,attr"`
 	Error           fmError           `xml:"error"`
@@ -53,4 +59,60 @@ type resultset struct {
 	Count     string   `xml:"count,attr"`
 	FetchSize string   `xml:"fetch-size,attr"`
 	Record    []record `xml:"record"`
+}
+
+type Server struct {
+	host, username, password string
+}
+
+type Records []map[string]string
+
+type Record map[string]string
+
+type SearchOperator string
+
+const (
+	MoreThan SearchOperator = "gt"
+	LessThan SearchOperator = "lt"
+	Equal    SearchOperator = "eq"
+)
+
+type SearchParam struct {
+	Name, Value string
+	Op          SearchOperator
+}
+
+func (sp SearchParam) String() string {
+	return "&" + url.QueryEscape(sp.Name) + "=" + url.QueryEscape(sp.Value) + "&" + url.QueryEscape(sp.Name) + ".op=" + string(sp.Op)
+}
+
+func NewServer(host, username, password string) Server {
+	return Server{host: host, username: username, password: password}
+}
+
+func getRecordsFromXml(fm fmresultset) Records {
+	records := make([]map[string]string, 0)
+	for _, v := range fm.Resultset.Record {
+		row := make(map[string]string)
+		row["recid"] = v.RecordId
+		for _, r := range v.Field {
+			row[r.Name] = r.Value
+		}
+		records = append(records, row)
+	}
+	return records
+}
+
+func (s *Server) getResult(query string) (io.ReadCloser, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", query, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.SetBasicAuth(s.username, s.password)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Body, nil
 }

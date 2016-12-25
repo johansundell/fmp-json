@@ -1,31 +1,31 @@
 package filemaker
 
 import (
+	"encoding/xml"
+	"errors"
 	"fmt"
-	"net/http"
+	"net/url"
 )
 
 func (s *Server) EditRow(database, layout string, recid string, data map[string]string) (Record, error) {
 	fmt.Println(data)
-	//return nil, nil
-	client := &http.Client{}
-	recidPart := "&-recid=" + recid
-	searchType := "&-edit"
-	url := s.host + "/fmi/xml/fmresultset.xml?-db=" + database + "&-lay=" + layout + recidPart + searchType
+
+	query := s.host + "/fmi/xml/fmresultset.xml?-db=" + url.QueryEscape(database) + "&-lay=" + url.QueryEscape(layout) + "&-recid=" + recid + "&-edit"
 	for k, v := range data {
-		url += "&" + k + "=" + v
+		query += "&" + url.QueryEscape(k) + "=" + url.QueryEscape(v)
 	}
-	fmt.Println(url)
-	req, err := http.NewRequest("GET", url, nil)
+
+	buffer, err := s.getResult(query)
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(s.username, s.password)
-	resp, err := client.Do(req)
-	if err != nil {
+	fm := fmresultset{}
+	if err := xml.NewDecoder(buffer).Decode(&fm); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	if fm.Error.Code != "0" {
+		return nil, errors.New("Filemaker error " + fm.Error.Code)
+	}
 
 	return s.GetRow(database, layout, recid)
 }
