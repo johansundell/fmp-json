@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/syslog"
 	"net/http"
 	"time"
 
@@ -23,11 +24,24 @@ var routes = Routes{
 
 var hostname, fmServer string
 var router *mux.Router
+var debug, useSyslog bool
+
+const appVersionStr = "0.1"
 
 func main() {
 	flag.StringVar(&hostname, "hostname", ":8080", "The hostname that will server the files")
 	flag.StringVar(&fmServer, "server", "http://fmh-iwp12.no-ip.info", "The filemaker server to use as host")
+	flag.BoolVar(&debug, "debug", false, "Debug requests")
+	flag.BoolVar(&useSyslog, "usesyslog", false, "Use syslog")
 	flag.Parse()
+
+	if useSyslog {
+		logwriter, err := syslog.New(syslog.LOG_NOTICE, "pixext")
+		if err != nil {
+			panic(err)
+		}
+		log.SetOutput(logwriter)
+	}
 
 	router = NewRouter()
 	srv := &http.Server{

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -20,6 +21,7 @@ func NewRouter() *mux.Router {
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
+		handler = logger(handler, route.Name)
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
@@ -29,9 +31,22 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		fn(w, r)
-	}
+func logger(inner http.Handler, name string) http.Handler {
+	//name := runtime.FuncForPC(reflect.ValueOf(inner).Pointer()).Name()
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if debug {
+			formValues := ""
+			if r.Method == "PUT" || r.Method == "POST" {
+				r.ParseForm()
+				for k, v := range r.Form {
+					if len(v) != 0 {
+						formValues += " " + k + "=" + v[0]
+					}
+				}
+			}
+			log.Println(name, r.RequestURI, r.RemoteAddr, r.Method, formValues)
+		}
+		w.Header().Set("X-App-Version", appVersionStr)
+		inner.ServeHTTP(w, r)
+	})
 }
