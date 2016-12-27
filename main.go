@@ -22,7 +22,7 @@ var routes = Routes{
 	},
 }
 
-var hostname, fmServer string
+var hostname, fmServer, sslKey, sslCert string
 var router *mux.Router
 var debug, useSyslog bool
 
@@ -33,6 +33,8 @@ func main() {
 	flag.StringVar(&fmServer, "server", "http://fmh-iwp12.no-ip.info", "The filemaker server to use as host")
 	flag.BoolVar(&debug, "debug", false, "Debug requests")
 	flag.BoolVar(&useSyslog, "usesyslog", false, "Use syslog")
+	flag.StringVar(&sslCert, "ssl-cert", "", "Path to the ssl cert to use, if empty it will use http")
+	flag.StringVar(&sslKey, "ssl-key", "", "Path to the ssl key to use, if empty it will use http")
 	flag.Parse()
 
 	if useSyslog {
@@ -51,7 +53,12 @@ func main() {
 		WriteTimeout: 90 * time.Second,
 		ReadTimeout:  90 * time.Second,
 	}
-	log.Fatal(srv.ListenAndServe())
+	if sslCert != "" && sslKey != "" {
+		log.Fatal(srv.ListenAndServeTLS(sslCert, sslKey))
+	} else {
+		log.Println("Could not find key or cert for ssl", sslKey, sslCert)
+		log.Fatal(srv.ListenAndServe())
+	}
 }
 
 func returnJson(w http.ResponseWriter, data interface{}) {
