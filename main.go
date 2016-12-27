@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/johansundell/fmp-json/filemaker"
 )
 
 var routes = Routes{
@@ -20,9 +21,8 @@ var routes = Routes{
 	},
 }
 
-var hostname, basePath string
+var hostname, fmServer string
 var router *mux.Router
-var fmServer = "http://fmh-iwp12.no-ip.info"
 
 func main() {
 	flag.StringVar(&hostname, "hostname", ":8080", "The hostname that will server the files")
@@ -49,4 +49,9 @@ func returnJson(w http.ResponseWriter, data interface{}) {
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "TODO: Write some documentation here")
+}
+
+func setUrl(req filemaker.Record, r *http.Request, database, layout string) {
+	url, _ := router.Get("getRecordHandler").URL("database", database, "layout", layout, "recid", req["recid"])
+	req["recid_url"] = r.Host + url.String()
 }

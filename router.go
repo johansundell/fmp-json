@@ -28,3 +28,10 @@ func NewRouter() *mux.Router {
 	}
 	return router
 }
+
+func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		fn(w, r)
+	}
+}

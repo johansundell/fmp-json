@@ -54,8 +54,7 @@ func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, v := range req {
-		url, _ := router.Get("getRecordHandler").URL("database", vars["database"], "layout", vars["layout"], "recid", v["recid"])
-		v["recid_url"] = r.Host + url.String()
+		setUrl(v, r, vars["database"], vars["layout"])
 	}
 	returnJson(w, req)
 }
