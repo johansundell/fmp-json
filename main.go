@@ -40,7 +40,7 @@ func main() {
 	flag.Parse()
 
 	if useSyslog {
-		logwriter, err := syslog.New(syslog.LOG_NOTICE, "pixext")
+		logwriter, err := syslog.New(syslog.LOG_NOTICE, "fmp-json")
 		if err != nil {
 			panic(err)
 		}
