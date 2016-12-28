@@ -1,3 +1,5 @@
+/server.crt
+/server.key
 /fmp-json
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
