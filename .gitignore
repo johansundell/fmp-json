@@ -1,3 +1,4 @@
+/build/*
 /server.crt
 /server.key
 /fmp-json
