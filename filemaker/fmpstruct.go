@@ -20,7 +20,6 @@ type record struct {
 	RecordId string  `xml:"record-id,attr"`
 	ModId    string  `xml:"mod-id,attr"`
 	Field    []field `xml:"field"`
-	//Field    [][]Field `xml:"field"`
 }
 type field struct {
 	Name  string `xml:"name,attr"`
@@ -65,9 +64,31 @@ type Server struct {
 	host, username, password string
 }
 
-type Records []map[string]string
+type Records []Record
 
-type Record map[string]string
+type Record map[string]*internal
+
+func (r Record) Add(key string, value string) {
+	r[key] = &internal{v: value}
+}
+
+func (r internal) String() string {
+	return r.v
+}
+
+type FileMakerType int
+
+const (
+	Unknown FileMakerType = iota
+	FileMakerNumber
+	FileMakerString
+	FileMakerDate
+)
+
+type internal struct {
+	v    string
+	Type FileMakerType
+}
 
 type SearchOperator string
 
@@ -91,12 +112,23 @@ func NewServer(host, username, password string) Server {
 }
 
 func getRecordsFromXml(fm fmresultset) Records {
-	records := make([]map[string]string, 0)
+	test := make(map[string]fieldDefinition)
+	for _, v := range fm.FieldDefinition {
+		test[v.Name] = v
+	}
+	records := make(Records, 0)
 	for _, v := range fm.Resultset.Record {
-		row := make(map[string]string)
-		row["recid"] = v.RecordId
+		row := make(Record)
+		row["recid"] = &internal{v: v.RecordId, Type: FileMakerNumber}
 		for _, r := range v.Field {
-			row[r.Name] = r.Value
+			row[r.Name] = &internal{v: r.Value}
+			switch test[r.Name].Result {
+			case "number":
+				row[r.Name].Type = FileMakerNumber
+			case "text":
+				row[r.Name].Type = FileMakerString
+			}
+			//log.Println(test[r.Name].Result, row[r.Name])
 		}
 		records = append(records, row)
 	}

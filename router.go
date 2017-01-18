@@ -46,7 +46,9 @@ func logger(inner http.Handler, name string) http.Handler {
 			}
 			log.Println(name, r.RequestURI, r.RemoteAddr, r.Method, formValues)
 		}
-		w.Header().Set("X-App-Version", appVersionStr)
+		w.Header().Set("fmp-json-Version", appVersionStr)
+		//ctx := context.WithValue(r.Context(), serverKey, fmServer)
+
 		inner.ServeHTTP(w, r)
 	})
 }

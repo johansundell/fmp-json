@@ -22,5 +22,5 @@ func deleteRecordHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(404), 404)
 		return
 	}
-	returnJson(w, true)
+	returnJson(w, true, vars["database"], vars["layout"], r)
 }

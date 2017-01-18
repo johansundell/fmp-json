@@ -53,8 +53,5 @@ func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 404)
 		return
 	}
-	for _, v := range req {
-		setUrl(v, r, vars["database"], vars["layout"])
-	}
-	returnJson(w, req)
+	returnJson(w, req, vars["database"], vars["layout"], r)
 }

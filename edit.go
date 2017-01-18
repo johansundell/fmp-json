@@ -29,8 +29,5 @@ func putRecordHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(404), 404)
 		return
 	}
-	url, _ := router.Get("getRecordHandler").URL("database", vars["database"], "layout", vars["layout"], "recid", req["recid"])
-	req["recid_url"] = r.Host + url.String()
-
-	returnJson(w, req)
+	returnJson(w, req, vars["database"], vars["layout"], r)
 }
