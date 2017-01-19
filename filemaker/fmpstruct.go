@@ -85,6 +85,11 @@ const (
 	FileMakerDate
 )
 
+type FileMakerFieldInfo struct {
+	Type   FileMakerType
+	Format string
+}
+
 type internal struct {
 	v    string
 	Type FileMakerType
@@ -127,6 +132,8 @@ func getRecordsFromXml(fm fmresultset) Records {
 				row[r.Name].Type = FileMakerNumber
 			case "text":
 				row[r.Name].Type = FileMakerString
+			case "date":
+				row[r.Name].Type = FileMakerDate
 			}
 			//log.Println(test[r.Name].Result, row[r.Name])
 		}

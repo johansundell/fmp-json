@@ -112,6 +112,13 @@ func getFormatedData(r filemaker.Record, database, layout string, req *http.Requ
 		switch v.Type {
 		case filemaker.FileMakerNumber:
 			output[k], _ = strconv.ParseFloat(v.String(), 10)
+		case filemaker.FileMakerDate:
+			if date, err := time.Parse("01/02/2006", v.String()); err == nil {
+				output[k] = date
+			} else {
+				log.Println(err)
+			}
+
 		default:
 			output[k] = v.String()
 		}
