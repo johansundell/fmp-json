@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -79,12 +78,11 @@ func getRequestData(w http.ResponseWriter, r *http.Request) (map[string]string, 
 		for k, v := range tmp {
 			switch t := v.(type) {
 			case float64:
-				data[k] = strconv.FormatFloat(v.(float64), 'f', -1, 64)
+				data[k] = strconv.FormatFloat(t, 'f', -1, 64)
 			case string:
-				data[k] = v.(string)
+				data[k] = t
 			default:
-				_ = t
-				fmt.Printf("Err %T\n", v)
+				log.Printf("Err %T\n", v)
 			}
 
 		}

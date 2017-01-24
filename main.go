@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -24,7 +25,7 @@ var routes = Routes{
 	},
 }
 
-var fmServer string
+var fmServer, redirectPort string
 
 var router *mux.Router
 var debug bool
@@ -33,21 +34,24 @@ const appVersionStr = "0.2"
 
 type key int
 
-const (
-	serverKey = iota
-	debugKey
-)
-
 func main() {
 	var httpPortInterface, tlsPortInterface, sslKey, sslCert string
 	var useSyslog bool
-	flag.StringVar(&httpPortInterface, "http", ":8080", "HTTP port and interface the server will use, format interface:port")
-	flag.StringVar(&tlsPortInterface, "tls", ":1443", "TLS port and interface the server will use, format interface:port")
-	flag.StringVar(&fmServer, "server", "http://fmh-iwp12.no-ip.info", "The filemaker server to use as host")
-	flag.BoolVar(&debug, "debug", true, "Debug requests")
+	httpPortInterface = os.Getenv("PIXFMT_HTTP_PORT")
+	tlsPortInterface = os.Getenv("PIXFMP_TLS_PORT")
+	fmServer = os.Getenv("PIXFMP_FM_SERVER")
+	sslCert = os.Getenv("PIXFMP_TLS_CERT")
+	sslKey = os.Getenv("PIXFMP_TLS_KEY")
+	redirectPort = os.Getenv("PIXFMP_HTTP_REDIRECT_TO")
+	debug, _ = strconv.ParseBool(os.Getenv("PIXFMP_DEBUG"))
+	flag.StringVar(&httpPortInterface, "http", httpPortInterface, "HTTP port and interface the server will use, format interface:port")
+	flag.StringVar(&tlsPortInterface, "tls", tlsPortInterface, "TLS port and interface the server will use, format interface:port")
+	flag.StringVar(&redirectPort, "redirect-to", tlsPortInterface, "When using TLS, redirect all request using http to this port")
+	flag.StringVar(&fmServer, "server", fmServer, "The filemaker server to use as host")
+	flag.BoolVar(&debug, "debug", debug, "Debug requests")
 	flag.BoolVar(&useSyslog, "usesyslog", false, "Use syslog")
-	flag.StringVar(&sslCert, "ssl-cert", "server.crt", "Path to the ssl cert to use, if empty it will use http")
-	flag.StringVar(&sslKey, "ssl-key", "server.key", "Path to the ssl key to use, if empty it will use http")
+	flag.StringVar(&sslCert, "ssl-cert", sslCert, "Path to the ssl cert to use, if empty it will use http")
+	flag.StringVar(&sslKey, "ssl-key", sslKey, "Path to the ssl key to use, if empty it will use http")
 	flag.Parse()
 
 	if useSyslog {
@@ -74,6 +78,14 @@ func main() {
 			log.Fatal(srv.ListenAndServeTLS(sslCert, sslKey))
 		}()
 	}
+	/*router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		t, err := route.GetPathTemplate()
+		if err != nil {
+			return err
+		}
+		fmt.Println(t)
+		return nil
+	})*/
 	//log.Println("Could not find key or cert for ssl", sslKey, sslCert)
 	if useTls {
 		log.Fatal(http.ListenAndServe(httpPortInterface, http.HandlerFunc(redir)))
@@ -128,7 +140,6 @@ func getFormatedData(r filemaker.Record, database, layout string, req *http.Requ
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
-
 	fmt.Fprint(w, "TODO: Write some documentation here")
 }
 
@@ -141,6 +152,10 @@ func getUrl(req filemaker.Record, r *http.Request, database, layout string) stri
 }
 
 func redir(w http.ResponseWriter, r *http.Request) {
+	if redirectPort != "" {
+		http.Redirect(w, r, "https://"+r.Host[:strings.Index(r.Host, ":")]+redirectPort+r.RequestURI, http.StatusMovedPermanently)
+		return
+	}
 	http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
 }
 
