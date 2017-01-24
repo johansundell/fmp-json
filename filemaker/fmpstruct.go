@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type fmresultset struct {
@@ -91,8 +92,9 @@ type FileMakerFieldInfo struct {
 }
 
 type internal struct {
-	v    string
-	Type FileMakerType
+	v      string
+	Type   FileMakerType
+	Format string
 }
 
 type SearchOperator string
@@ -134,6 +136,9 @@ func getRecordsFromXml(fm fmresultset) Records {
 				row[r.Name].Type = FileMakerString
 			case "date":
 				row[r.Name].Type = FileMakerDate
+				replacer := strings.NewReplacer("yyyy", "2006", "MM", "01", "dd", "02")
+				dateLayout := replacer.Replace(fm.Datasource.DateFormat)
+				row[r.Name].Format = dateLayout
 			}
 			//log.Println(test[r.Name].Result, row[r.Name])
 		}
