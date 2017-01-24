@@ -1,6 +1,6 @@
 GHACCOUNT := johansundell
 NAME := fmp-json
-VERSION := v0.1
+VERSION := v0.2
 
 include common.mk
 
