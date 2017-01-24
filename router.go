@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -51,4 +55,39 @@ func logger(inner http.Handler, name string) http.Handler {
 
 		inner.ServeHTTP(w, r)
 	})
+}
+
+func getRequestData(w http.ResponseWriter, r *http.Request) (map[string]string, error) {
+	if len(r.Header["Content-Type"]) == 0 {
+		return nil, errors.New("Content-type not set")
+	}
+	data := make(map[string]string)
+	switch r.Header["Content-Type"][0] {
+	case "application/x-www-form-urlencoded":
+		r.ParseForm()
+		for k, v := range r.Form {
+			if len(v) >= 1 {
+				data[k] = v[0]
+			}
+		}
+	case "application/json":
+		var tmp map[string]interface{}
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&tmp); err != nil {
+			return nil, errors.New("Not proper json")
+		}
+		for k, v := range tmp {
+			switch t := v.(type) {
+			case float64:
+				data[k] = strconv.FormatFloat(v.(float64), 'f', -1, 64)
+			case string:
+				data[k] = v.(string)
+			default:
+				_ = t
+				fmt.Printf("Err %T\n", v)
+			}
+
+		}
+	}
+	return data, nil
 }

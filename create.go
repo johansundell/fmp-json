@@ -14,13 +14,13 @@ func init() {
 
 func postRecordHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	r.ParseForm()
-	data := make(map[string]string)
-	for k, v := range r.Form {
-		if len(v) != 0 {
-			data[k] = v[0]
-		}
+	data, err := getRequestData(w, r)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 404)
+		return
 	}
+	//log.Println(data)
 	username, password, _ := r.BasicAuth()
 	fm := filemaker.NewServer(fmServer, username, password)
 	req, err := fm.NewRow(vars["database"], vars["layout"], data)
