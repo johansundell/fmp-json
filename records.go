@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -12,9 +13,31 @@ import (
 
 func init() {
 	routes = append(routes, Route{"getRecordsHandler", "GET", "/pixfmp/{database}/{layout}/records/", getRecordsHandler})
+	routes = append(routes, Route{"getRecordsPageHandler", "GET", "/pixfmp/{database}/{layout}/records/{start}/{stop}/", getRecordsPageHandler})
+}
+
+func getRecordsPageHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	start, err := strconv.Atoi(vars["start"])
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 501)
+		return
+	}
+	stop, err := strconv.Atoi(vars["stop"])
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 501)
+		return
+	}
+	getRecords(w, r, start, stop)
 }
 
 func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
+	getRecords(w, r, -1, -1)
+}
+
+func getRecords(w http.ResponseWriter, r *http.Request, start, stop int) {
 	vars := mux.Vars(r)
 	username, password, _ := r.BasicAuth()
 	params := make([]filemaker.SearchParam, 0)
@@ -47,7 +70,7 @@ func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fm := filemaker.NewServer(fmServer, username, password)
-	req, err := fm.Get(vars["database"], vars["layout"], params)
+	req, err := fm.Get(vars["database"], vars["layout"], params, start, stop)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), 404)
