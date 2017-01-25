@@ -152,7 +152,11 @@ func getUrl(req filemaker.Record, r *http.Request, database, layout string) stri
 
 func redir(w http.ResponseWriter, r *http.Request) {
 	if redirectPort != "" {
-		http.Redirect(w, r, "https://"+r.Host[:strings.Index(r.Host, ":")]+redirectPort+r.RequestURI, http.StatusMovedPermanently)
+		host := r.Host
+		if strings.Contains(host, ":") {
+			host = host[:strings.Index(r.Host, ":")]
+		}
+		http.Redirect(w, r, "https://"+host+redirectPort+r.RequestURI, http.StatusMovedPermanently)
 		return
 	}
 	http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
