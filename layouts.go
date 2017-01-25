@@ -14,6 +14,10 @@ func init() {
 }
 
 func listLayouts(w http.ResponseWriter, r *http.Request) {
+	if !displayLayouts {
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
 	vars := mux.Vars(r)
 	username, password, _ := r.BasicAuth()
 	fm := filemaker.NewServer(fmServer, username, password)

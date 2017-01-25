@@ -13,6 +13,10 @@ func init() {
 }
 
 func listDatabases(w http.ResponseWriter, r *http.Request) {
+	if !displayDatabases {
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
 	username, password, _ := r.BasicAuth()
 	fm := filemaker.NewServer(fmServer, username, password)
 	req, err := fm.ListDatabases()

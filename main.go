@@ -28,7 +28,7 @@ var routes = Routes{
 var fmServer, redirectPort string
 
 var router *mux.Router
-var debug bool
+var debug, displayDatabases, displayLayouts bool
 
 const appVersionStr = "0.3"
 
@@ -52,7 +52,13 @@ func main() {
 	flag.BoolVar(&useSyslog, "usesyslog", false, "Use syslog")
 	flag.StringVar(&sslCert, "ssl-cert", sslCert, "Path to the ssl cert to use, if empty it will use http")
 	flag.StringVar(&sslKey, "ssl-key", sslKey, "Path to the ssl key to use, if empty it will use http")
+	flag.BoolVar(&displayDatabases, "list-databases", false, "Display all XML enabled databases")
+	flag.BoolVar(&displayLayouts, "list-layouts", false, "Display all XML enabled layouts")
 	flag.Parse()
+
+	if fmServer == "" {
+		log.Fatalln("Filemaker server not set, exiting...")
+	}
 
 	if useSyslog {
 		logwriter, err := syslog.New(syslog.LOG_NOTICE, "fmp-json")
@@ -145,7 +151,7 @@ func getFormatedData(r filemaker.Record, database, layout string, req *http.Requ
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "TODO: Write some documentation here")
+	fmt.Fprint(w, "fmp-json running ;)")
 }
 
 func getUrl(req filemaker.Record, r *http.Request, database, layout string) string {
