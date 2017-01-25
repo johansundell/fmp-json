@@ -30,7 +30,7 @@ var fmServer, redirectPort string
 var router *mux.Router
 var debug bool
 
-const appVersionStr = "0.2"
+const appVersionStr = "0.3"
 
 type key int
 
