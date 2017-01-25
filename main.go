@@ -130,6 +130,12 @@ func getFormatedData(r filemaker.Record, database, layout string, req *http.Requ
 			} else {
 				log.Println(err)
 			}
+		case filemaker.FileMakerContainer:
+			if url, err := router.Get("getContainerHandler").URL("database", database, "layout", layout, "recid", r["recid"].String(), "field", k); err == nil {
+				output[k] = req.Host + url.String()
+			} else {
+				log.Println(err)
+			}
 		default:
 			output[k] = v.String()
 		}
