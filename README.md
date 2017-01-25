@@ -3,9 +3,13 @@ A simple Filemaker XML to JSON proxy
 
 	Usage of ./fmp-json:
 	  -debug
-			Debug requests
+	    	Debug requests
 	  -http string
 	    	HTTP port and interface the server will use, format interface:port
+	  -list-databases
+	    	Display all XML enabled databases
+	  -list-layouts
+	    	Display all XML enabled layouts
 	  -redirect-to string
 	    	When using TLS, redirect all request using http to this port
 	  -server string
@@ -18,3 +22,4 @@ A simple Filemaker XML to JSON proxy
 	    	TLS port and interface the server will use, format interface:port
 	  -usesyslog
 	    	Use syslog
+
