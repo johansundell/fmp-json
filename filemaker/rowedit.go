@@ -42,7 +42,7 @@ func (s *Server) getFormatedDataQuery(query, database, layout string, data map[s
 		fm := fmDef[strings.ToLower(k)]
 		if fm != nil {
 			switch fm.Type {
-			case FileMakerDate:
+			case FileMakerDate, FileMakerTimestamp:
 				if val, err := time.Parse(time.RFC3339, v); err == nil {
 					query += "&" + url.QueryEscape(k) + "=" + url.QueryEscape(val.Format(fm.Format))
 				} else {

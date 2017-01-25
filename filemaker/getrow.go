@@ -7,7 +7,7 @@ import (
 
 func (s *Server) GetRow(database, layout string, recid string) (Record, error) {
 	query := s.host + "/fmi/xml/fmresultset.xml?-db=" + database + "&-lay=" + layout + "&-recid=" + recid + "&-find"
-
+	//log.Println(query)
 	reader, err := s.getResult(query)
 	defer reader.Close()
 	if err != nil {

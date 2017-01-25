@@ -84,6 +84,7 @@ const (
 	FileMakerNumber
 	FileMakerString
 	FileMakerDate
+	FileMakerTimestamp
 )
 
 type FileMakerFieldInfo struct {
@@ -138,6 +139,11 @@ func getRecordsFromXml(fm fmresultset) Records {
 				row[r.Name].Type = FileMakerDate
 				replacer := strings.NewReplacer("yyyy", "2006", "MM", "01", "dd", "02")
 				dateLayout := replacer.Replace(fm.Datasource.DateFormat)
+				row[r.Name].Format = dateLayout
+			case "timestamp":
+				row[r.Name].Type = FileMakerTimestamp
+				replacer := strings.NewReplacer("yyyy", "2006", "MM", "01", "dd", "02", "HH", "15", "mm", "04", "ss", "05")
+				dateLayout := replacer.Replace(fm.Datasource.TimestampFormat)
 				row[r.Name].Format = dateLayout
 			}
 			//log.Println(test[r.Name].Result, row[r.Name])

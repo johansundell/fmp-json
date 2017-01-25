@@ -36,6 +36,10 @@ func (s *Server) getLayoutFields(database, layout string) (map[string]*FileMaker
 			r := strings.NewReplacer("yyyy", "2006", "MM", "01", "dd", "02")
 			dateLayout := r.Replace(fm.Datasource.DateFormat)
 			fmDef[name] = &FileMakerFieldInfo{Type: FileMakerDate, Format: dateLayout}
+		case "timestamp":
+			r := strings.NewReplacer("yyyy", "2006", "MM", "01", "dd", "02", "HH", "15", "mm", "04", "ss", "05")
+			dateLayout := r.Replace(fm.Datasource.TimestampFormat)
+			fmDef[name] = &FileMakerFieldInfo{Type: FileMakerDate, Format: dateLayout}
 		default:
 			fmDef[name] = &FileMakerFieldInfo{Type: FileMakerString}
 		}
