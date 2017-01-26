@@ -131,10 +131,13 @@ func getFormatedData(r filemaker.Record, database, layout string, req *http.Requ
 		case filemaker.FileMakerNumber:
 			output[k], _ = strconv.ParseFloat(v.String(), 10)
 		case filemaker.FileMakerDate, filemaker.FileMakerTimestamp:
-			if date, err := time.Parse(v.Format, v.String()); err == nil {
+			if v.String() == "" {
+				output[k] = time.Time{}
+			} else if date, err := time.Parse(v.Format, v.String()); err == nil {
 				output[k] = date
 			} else {
-				log.Println(err)
+				log.Println(err, "recid", r["recid"])
+				output[k] = time.Time{}
 			}
 		case filemaker.FileMakerContainer:
 			if url, err := router.Get("getContainerHandler").URL("database", database, "layout", layout, "recid", r["recid"].String(), "field", k); err == nil {
