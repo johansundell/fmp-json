@@ -147,7 +147,9 @@ func getRecordsFromXml(fm fmresultset) Records {
 				dateLayout := replacer.Replace(fm.Datasource.TimestampFormat)
 				row[r.Name].Format = dateLayout
 			case "container":
-				row[r.Name].Type = FileMakerContainer
+				if r.Value != "" {
+					row[r.Name].Type = FileMakerContainer
+				}
 			}
 			//log.Println(test[r.Name].Result, row[r.Name])
 		}
