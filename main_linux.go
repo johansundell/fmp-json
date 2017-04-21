@@ -1,3 +1,5 @@
+// +build darwin dragonfly freebsd linux netbsd openbsd solaris
+
 package main
 
 import (
@@ -5,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"log/syslog"
 	"net/http"
 	"os"
 	"strconv"
@@ -36,7 +37,7 @@ type key int
 
 func main() {
 	var httpPortInterface, tlsPortInterface, sslKey, sslCert string
-	var useSyslog bool
+	//var useSyslog bool
 	httpPortInterface = os.Getenv("PIXFMT_HTTP_PORT")
 	tlsPortInterface = os.Getenv("PIXFMP_TLS_PORT")
 	fmServer = os.Getenv("PIXFMP_FM_SERVER")
@@ -49,7 +50,7 @@ func main() {
 	flag.StringVar(&redirectPort, "redirect-to", tlsPortInterface, "When using TLS, redirect all request using http to this port")
 	flag.StringVar(&fmServer, "server", fmServer, "The filemaker server to use as host")
 	flag.BoolVar(&debug, "debug", debug, "Debug requests")
-	flag.BoolVar(&useSyslog, "usesyslog", false, "Use syslog")
+	//flag.BoolVar(&useSyslog, "usesyslog", false, "Use syslog")
 	flag.StringVar(&sslCert, "ssl-cert", sslCert, "Path to the ssl cert to use, if empty it will use http")
 	flag.StringVar(&sslKey, "ssl-key", sslKey, "Path to the ssl key to use, if empty it will use http")
 	flag.BoolVar(&displayDatabases, "list-databases", false, "Display all XML enabled databases")
@@ -60,13 +61,13 @@ func main() {
 		log.Fatalln("Filemaker server not set, exiting...")
 	}
 
-	if useSyslog {
+	/*if useSyslog {
 		logwriter, err := syslog.New(syslog.LOG_NOTICE, "fmp-json")
 		if err != nil {
 			panic(err)
 		}
 		log.SetOutput(logwriter)
-	}
+	}*/
 
 	router = NewRouter()
 	srv := &http.Server{

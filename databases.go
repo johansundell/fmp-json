@@ -37,7 +37,7 @@ func listDatabases(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-	if debug {
+	if mydebug {
 		enc.SetIndent("", "\t")
 	}
 	enc.Encode(output)

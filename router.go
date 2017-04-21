@@ -37,7 +37,7 @@ func NewRouter() *mux.Router {
 func logger(inner http.Handler, name string) http.Handler {
 	//name := runtime.FuncForPC(reflect.ValueOf(inner).Pointer()).Name()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if debug {
+		if mydebug {
 			formValues := ""
 			if r.Method == "PUT" || r.Method == "POST" {
 				r.ParseForm()
