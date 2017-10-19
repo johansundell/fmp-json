@@ -21,7 +21,7 @@ func listLayouts(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username, password, _ := r.BasicAuth()
 	fm := filemaker.NewServer(fmServer, username, password)
-	req, err := fm.Listlayouts(vars["database"])
+	req, _, err := fm.Listlayouts(vars["database"])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, http.StatusText(404), 404)

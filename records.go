@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -70,11 +71,12 @@ func getRecords(w http.ResponseWriter, r *http.Request, start, stop int) {
 	}
 
 	fm := filemaker.NewServer(fmServer, username, password)
-	req, err := fm.Get(vars["database"], vars["layout"], params, start, stop)
+	req, found, err := fm.Get(vars["database"], vars["layout"], params, start, stop)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), 404)
 		return
 	}
+	w.Header().Set("found-count", fmt.Sprintf("%d", found))
 	returnJson(w, req, vars["database"], vars["layout"], r)
 }

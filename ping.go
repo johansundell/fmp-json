@@ -16,7 +16,7 @@ func pingServer(w http.ResponseWriter, r *http.Request) {
 	// UGLY copy ;)
 	username, password, _ := r.BasicAuth()
 	fm := filemaker.NewServer(fmServer, username, password)
-	req, err := fm.ListDatabases()
+	req, _, err := fm.ListDatabases()
 	ping := false
 	if err != nil || len(req) == 0 {
 		log.Println(err)

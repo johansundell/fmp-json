@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func (s *Server) Get(database, layout string, params []SearchParam, start, stop int) (Records, error) {
+func (s *Server) Get(database, layout string, params []SearchParam, start, stop int) (Records, int, error) {
 	search := ""
 	for _, v := range params {
 		search += v.String()

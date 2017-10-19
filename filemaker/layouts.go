@@ -4,10 +4,11 @@ import (
 	"encoding/xml"
 	"errors"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
-func (s *Server) Listlayouts(database string) (Records, error) {
+func (s *Server) Listlayouts(database string) (Records, int, error) {
 	query := s.host + "/fmi/xml/fmresultset.xml?-db=" + url.QueryEscape(database) + "&-layoutnames"
 	return s.getQueryResult(query)
 }
@@ -47,20 +48,24 @@ func (s *Server) getLayoutFields(database, layout string) (map[string]*FileMaker
 	return fmDef, nil
 }
 
-func (s *Server) getQueryResult(query string) (Records, error) {
+func (s *Server) getQueryResult(query string) (Records, int, error) {
 	reader, err := s.getResult(query)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer reader.Close()
 
 	fm := fmresultset{}
 	if err := xml.NewDecoder(reader).Decode(&fm); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if fm.Error.Code != "0" {
-		return nil, errors.New("Filemaker error " + fm.Error.Code)
+		return nil, 0, errors.New("Filemaker error " + fm.Error.Code)
 	}
-	return getRecordsFromXml(fm), nil
+	found, err := strconv.Atoi(fm.Resultset.Count)
+	if err != nil {
+		return nil, 0, err
+	}
+	return getRecordsFromXml(fm), found, nil
 }

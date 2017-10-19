@@ -19,7 +19,7 @@ func listDatabases(w http.ResponseWriter, r *http.Request) {
 	}
 	username, password, _ := r.BasicAuth()
 	fm := filemaker.NewServer(fmServer, username, password)
-	req, err := fm.ListDatabases()
+	req, _, err := fm.ListDatabases()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, http.StatusText(404), 404)
