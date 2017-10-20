@@ -40,6 +40,7 @@ func getRecordsHandler(w http.ResponseWriter, r *http.Request) {
 
 func getRecords(w http.ResponseWriter, r *http.Request, start, stop int) {
 	vars := mux.Vars(r)
+	//log.Println("test")
 	username, password, _ := r.BasicAuth()
 	params := make([]filemaker.SearchParam, 0)
 	if strings.Contains(r.RequestURI, "?") {
