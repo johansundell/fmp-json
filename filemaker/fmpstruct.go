@@ -160,10 +160,31 @@ func getRecordsFromXml(fm fmresultset) Records {
 
 func (s *Server) getResult(query string) (io.ReadCloser, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", query, nil)
+	parts := strings.Split(query, "?")
+	v := url.Values{}
+	_ = v
+	if len(parts) > 1 {
+		preform := strings.Split(parts[1], "&")
+		for _, r := range preform {
+			if strings.ContainsRune(r, '=') {
+				p := strings.Split(r, "=")
+				p1, _ := url.QueryUnescape(p[0])
+				p2, _ := url.QueryUnescape(p[1])
+				v.Set(p1, p2)
+			} else {
+				p, _ := url.QueryUnescape(r)
+				v.Set(p, "")
+			}
+		}
+	}
+	//fmt.Println(v.Encode())
+	//req, err := http.NewRequest("GET", query, nil)
+	req, err := http.NewRequest("POST", parts[0], strings.NewReader(v.Encode()))
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
 	req.SetBasicAuth(s.username, s.password)
 	resp, err := client.Do(req)
 	if err != nil {
